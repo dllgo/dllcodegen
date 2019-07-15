@@ -73,7 +73,7 @@ func (this *{{.Name}}Handler) add{{.Name}}(ctx *gin.Context) {
 		return
 	}
 	m{{.Name}} := this.{{.Name}}Service.Take(m{{.Name}}Info)
-	if m{{.Name}}.Id > 0 {
+	if m{{.Name}} != nil && m{{.Name}}.Id > 0 {
 		result.Code = 300
 		result.Msg = "记录已存在"
 		return
