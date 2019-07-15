@@ -10,6 +10,7 @@ import (
 	"{{.PkgName}}/model"
 	"{{.PkgName}}/repositories"
 	"github.com/dllgo/dllkit/db/gorm"
+	"github.com/dllgo/dllkit/gins"
 )
 type {{.Name}}Service struct {
 	{{.Name}}Repository *repositories.{{.Name}}Repository
@@ -25,7 +26,12 @@ func (this *{{.Name}}Service) Get(id int64) *model.{{.Name}} {
 func (this *{{.Name}}Service) GetInIds(Ids []int64) []model.{{.Name}} {
 	return this.{{.Name}}Repository.GetInIds(gorm.MustDB(), Ids)
 }
-
+func (this *{{.Name}}Service) Count(maps interface{}) int {
+	return this.{{.Name}}Repository.Count(gorm.MustDB(),maps)
+}
+func (this *{{.Name}}Service) Query(pageNo int, pageSize int,maps interface{}) (list []model.{{.Name}}, paging *gins.Paging) {
+	return this.{{.Name}}Repository.Query(gorm.MustDB(), pageNo ,pageSize ,maps)
+}
 func (this *{{.Name}}Service) Take(where ...interface{}) *model.{{.Name}} {
 	return this.{{.Name}}Repository.Take(gorm.MustDB(), where...)
 }

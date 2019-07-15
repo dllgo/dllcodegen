@@ -9,6 +9,7 @@ package repositories
 import (
 	"{{.PkgName}}/model"
 	"github.com/jinzhu/gorm"
+	"github.com/dllgo/dllkit/gins"
 )
 type {{.Name}}Repository struct {
 }
@@ -31,6 +32,32 @@ func (this *{{.Name}}Repository) GetInIds(db *gorm.DB,Ids []int64) []model.{{.Na
 		return nil
 	}
 	return {{.Name}}s
+}
+func (this *{{.Name}}Repository) Count(db *gorm.DB,maps interface{}) int {
+	var {{.Name}}s []model.{{.Name}}
+	var count int
+	if err := db.Where(maps).Count(&count).Error; err != nil {
+		return 0 
+	}
+	return count
+}
+func (this *{{.Name}}Repository) Query(db *gorm.DB,pageNo int, pageSize int,maps interface{}) (list []model.{{.Name}}, paging *gins.Paging) {
+	page := NewPaging()
+	page.PageNo = pageNo
+	page.PageSize = pageSize
+	page.TotalCount = this.Count(db,maps)
+	
+	if page.TotalCount ==0 {
+		return nil, nil
+	}
+	page.ToTalPage = page.TotalPages()
+
+	var {{.Name}}s []model.{{.Name}}
+	err := db.Where(maps).Offset(page.Offset()).Limit(page.pageSize).Find(&{{.Name}}s).Error
+	if err != nil {
+		return nil,nil
+	}
+	return {{.Name}}s, page
 }
 func (this *{{.Name}}Repository) Take(db *gorm.DB, where ...interface{}) *model.{{.Name}} {
 	ret := &model.{{.Name}}{}
