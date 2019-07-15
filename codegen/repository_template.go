@@ -61,7 +61,7 @@ func (this *{{.Name}}Repository) Query(db *gorm.DB,pageNo int, pageSize int,maps
 	if maps != nil {
 		db = db.Where(maps)
 	}
-	err := db.Offset(page.Offset()).Limit(page.PageSize).Order("id desc").Find(&&{{.Name}}s).Error
+	err := db.Offset(page.Offset()).Limit(page.PageSize).Order("id desc").Find(&{{.Name}}s).Error
 	if err != nil {
 		return nil, nil
 	}
