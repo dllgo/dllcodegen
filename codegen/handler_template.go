@@ -43,23 +43,23 @@ func (this *{{.Name}}Handler) get{{.Name}}s(ctx *gin.Context) {
 func (this *{{.Name}}Handler) get{{.Name}}(ctx *gin.Context) {
 	result := gins.NewResponse()
 	defer result.JSON(ctx)
-	id := conv.Int64(ctx.Param("id"))
+	mid := conv.Int64(ctx.Param("id"))
 	valid := validation.Validation{}
-	if v := valid.Min(id, 1, "id"); !v.Ok {
+	if v := valid.Min(mid, 1, "id"); !v.Ok {
 		result.Code = 300
 		result.Msg = "ID必须大于0"
 		return
 	}
 	result.Code = 200
 	result.Msg = "成功"
-	result.Data = this.{{.Name}}Service.Get(id)
+	result.Data = this.{{.Name}}Service.Get(mid)
 	return
 }
 func (this *{{.Name}}Handler) add{{.Name}}(ctx *gin.Context) {
 	result := gins.NewResponse()
 	defer result.JSON(ctx)
-	var {{.Name}}Info model.{{.Name}}
-	err := ctx.BindJSON(&{{.Name}}Info)
+	var m{{.Name}}Info model.{{.Name}}
+	err := ctx.BindJSON(&m{{.Name}}Info)
 	if err != nil {
 		result.Code = 300
 		result.Msg = "无效的参数"
@@ -79,7 +79,7 @@ func (this *{{.Name}}Handler) add{{.Name}}(ctx *gin.Context) {
 		return
 	}
 
-	err := this.{{.Name}}Service.Create({{.Name}}Info)
+	err := this.{{.Name}}Service.Create(&m{{.Name}}Info)
 	if err != nil {
 		result.Code = 300
 		result.Msg = "新增失败"
@@ -92,23 +92,23 @@ func (this *{{.Name}}Handler) add{{.Name}}(ctx *gin.Context) {
 func (this *{{.Name}}Handler) edit{{.Name}}(ctx *gin.Context) {
 	result := gins.NewResponse()
 	defer result.JSON(ctx)
-	id := conv.Int64(ctx.Param("id"))
+	mid := conv.Int64(ctx.Param("id"))
 	valid := validation.Validation{}
-	if v := valid.Min(id, 1, "id"); !v.Ok {
+	if v := valid.Min(mid, 1, "id"); !v.Ok {
 		result.Code = 300
 		result.Msg = "ID必须大于0"
 		return
 	}
 
-	var {{.Name}}Info model.{{.Name}}
-	err := ctx.BindJSON(&{{.Name}}Info)
+	var m{{.Name}}Info model.{{.Name}}
+	err := ctx.BindJSON(&m{{.Name}}Info)
 	if err != nil {
 		result.Code = 300
 		result.Msg = "无效的参数"
 		return
 	}
-	{{.Name}}Info.Id = id
-	err := this.{{.Name}}Service.Update({{.Name}}Info)
+	m{{.Name}}Info.Id = mid
+	err := this.{{.Name}}Service.Update(&m{{.Name}}Info)
 	if err != nil {
 		result.Code = 300
 		result.Msg = "更新失败"
@@ -129,14 +129,14 @@ func (this *{{.Name}}Handler) delete{{.Name}}s(ctx *gin.Context) {
 func (this *{{.Name}}Handler) delete{{.Name}}(ctx *gin.Context) {
 	result := gins.NewResponse()
 	defer result.JSON(ctx)
-	id := conv.Int64(ctx.Param("id"))
+	mid := conv.Int64(ctx.Param("id"))
 	valid := validation.Validation{}
-	if v := valid.Min(id, 1, "id"); !v.Ok {
+	if v := valid.Min(mid, 1, "id"); !v.Ok {
 		result.Code = 300
 		result.Msg = "ID必须大于0"
 		return
 	}
-	this.{{.Name}}Service.Delete(id)
+	this.{{.Name}}Service.Delete(mid)
 	result.Code = 200
 	result.Msg = "删除成功"
 	return
