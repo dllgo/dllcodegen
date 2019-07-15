@@ -66,20 +66,20 @@ func (this *{{.Name}}Handler) add{{.Name}}(ctx *gin.Context) {
 		return
 	}
 	valid := validation.Validation{}
-	valid.MaxSize({{.Name}}Info.Name, 20, "name").Message("最长为20字符")
+	valid.MaxSize(m{{.Name}}Info.Name, 20, "name").Message("最长为20字符")
 	if valid.HasErrors() {
 		result.Msg = "无效的参数"
 		result.Data = valid.Errors
 		return
 	}
-	m{{.Name}} := this.{{.Name}}Service.Take({{.Name}}Info)
+	m{{.Name}} := this.{{.Name}}Service.Take(m{{.Name}}Info)
 	if m{{.Name}}.Id > 0 {
 		result.Code = 300
 		result.Msg = "记录已存在"
 		return
 	}
 
-	err := this.{{.Name}}Service.Create(&m{{.Name}}Info)
+	err = this.{{.Name}}Service.Create(&m{{.Name}}Info)
 	if err != nil {
 		result.Code = 300
 		result.Msg = "新增失败"
@@ -108,7 +108,7 @@ func (this *{{.Name}}Handler) edit{{.Name}}(ctx *gin.Context) {
 		return
 	}
 	m{{.Name}}Info.Id = mid
-	err := this.{{.Name}}Service.Update(&m{{.Name}}Info)
+	err = this.{{.Name}}Service.Update(&m{{.Name}}Info)
 	if err != nil {
 		result.Code = 300
 		result.Msg = "更新失败"
