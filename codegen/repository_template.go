@@ -36,16 +36,13 @@ func (this *{{.Name}}Repository) GetInIds(db *gorm.DB,Ids []int64) []model.{{.Na
 func (this *{{.Name}}Repository) Count(db *gorm.DB,maps interface{}) int {
 	ret := &model.{{.Name}}{}
 	var count int
+	db = db.Model(ret)
 	if maps != nil {
-		if err := db.Model(ret).Where(maps).Count(&count).Error; err != nil {
-			return 0 
-		}
-	}else{
-		if err := db.Model(ret).Count(&count).Error; err != nil {
-			return 0 
-		}
+		db = db.Where(maps)
 	}
-	
+	if err := db.Count(&count).Error; err != nil {
+		return 0
+	}
 	return count
 }
 func (this *{{.Name}}Repository) Query(db *gorm.DB,pageNo int, pageSize int,maps interface{}) (list []model.{{.Name}}, paging *gins.Paging) {
@@ -60,13 +57,13 @@ func (this *{{.Name}}Repository) Query(db *gorm.DB,pageNo int, pageSize int,maps
 	page.TotalPage = page.TotalPages()
 
 	var {{.Name}}s []model.{{.Name}}
+
 	if maps != nil {
-		err := db.Where(maps).Offset(page.Offset()).Limit(page.PageSize).Order("id desc").Find(&{{.Name}}s).Error
-	}else{
-		err := db.Offset(page.Offset()).Limit(page.PageSize).Order("id desc").Find(&{{.Name}}s).Error
+		db = db.Where(maps)
 	}
+	err := db.Offset(page.Offset()).Limit(page.PageSize).Order("id desc").Find(&&{{.Name}}s).Error
 	if err != nil {
-		return nil,nil
+		return nil, nil
 	}
 	return {{.Name}}s, page
 }
