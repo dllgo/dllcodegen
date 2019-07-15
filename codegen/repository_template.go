@@ -34,15 +34,15 @@ func (this *{{.Name}}Repository) GetInIds(db *gorm.DB,Ids []int64) []model.{{.Na
 	return {{.Name}}s
 }
 func (this *{{.Name}}Repository) Count(db *gorm.DB,maps interface{}) int {
-	var {{.Name}}s []model.{{.Name}}
+	ret := &model.{{.Name}}{}
 	var count int
-	if err := db.Where(maps).Count(&count).Error; err != nil {
+	if err := db.Model(ret).Where(maps).Count(&count).Error; err != nil {
 		return 0 
 	}
 	return count
 }
 func (this *{{.Name}}Repository) Query(db *gorm.DB,pageNo int, pageSize int,maps interface{}) (list []model.{{.Name}}, paging *gins.Paging) {
-	page := NewPaging()
+	page := gins.NewPaging()
 	page.PageNo = pageNo
 	page.PageSize = pageSize
 	page.TotalCount = this.Count(db,maps)
@@ -50,10 +50,10 @@ func (this *{{.Name}}Repository) Query(db *gorm.DB,pageNo int, pageSize int,maps
 	if page.TotalCount ==0 {
 		return nil, nil
 	}
-	page.ToTalPage = page.TotalPages()
+	page.TotalPage = page.TotalPages()
 
 	var {{.Name}}s []model.{{.Name}}
-	err := db.Where(maps).Offset(page.Offset()).Limit(page.pageSize).Find(&{{.Name}}s).Error
+	err := db.Where(maps).Offset(page.Offset()).Limit(page.PageSize).Order("id desc").Find(&{{.Name}}s).Error
 	if err != nil {
 		return nil,nil
 	}
@@ -83,7 +83,7 @@ func (this *{{.Name}}Repository) UpdateColumn(db *gorm.DB, id int64, name string
 	return
 }
 func (this *{{.Name}}Repository) Delete(db *gorm.DB, id int64) {
-	db.Model(&model.{{.Name}}{}).Delete("id", id)
+	db.Where("id = ?", id).Delete(&model.{{.Name}}{})
 }
 func (this *{{.Name}}Repository) DeleteInIds(db *gorm.DB,Ids []int64) {
 	db.Where("id in (?)", Ids).Delete(&model.{{.Name}}{})

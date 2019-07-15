@@ -35,23 +35,11 @@ func (this *{{.Name}}Handler) Router(router *gin.Engine) {
 func (this *{{.Name}}Handler) get{{.Name}}s(ctx *gin.Context) {
 	result := gins.NewResponse()
 	defer result.JSON(ctx)
-    var m{{.Name}}Maps interface{}
-	err := ctx.BindJSON(&m{{.Name}}Maps)
-	if err != nil {
-		result.Code = 300
-		result.Msg = "无效的参数"
-		return
-	}
-	valid := validation.Validation{}
-	mpage := conv.Int(ctx.Param("page"))
-	if v := valid.Min(mpage, 1, "page"); !v.Ok {
-		result.Code = 300
-		result.Msg = "page必须大于0"
-		return
-	}
 
-	mlimit := conv.Int(ctx.Param("limit"))
-	m{{.Name}}s,paging := this.{{.Name}}Service.Query(mpage,mlimit,m{{.Name}}Maps)
+	limit := ctx.DefaultQuery("limit", "10")
+	page := ctx.DefaultQuery("page", "1")
+    var m{{.Name}}Maps interface{}
+	m{{.Name}}s,paging := this.{{.Name}}Service.Query(conv.Int(page), conv.Int(limit),m{{.Name}}Maps)
 	if m{{.Name}}s == nil {
 		result.Code = 200
 		result.Msg = "暂无数据"
@@ -59,8 +47,10 @@ func (this *{{.Name}}Handler) get{{.Name}}s(ctx *gin.Context) {
 	}
 	result.Code = 200
 	result.Msg = "成功"
-	result.Data["list"] = m{{.Name}}s
-	result.Data["page"] = paging
+	data := map[string]interface{}{}
+	data["lists"] = m{{.Name}}s
+	data["page"] = paging
+	result.Data = data
 	return
 }
 func (this *{{.Name}}Handler) get{{.Name}}(ctx *gin.Context) {
@@ -150,7 +140,20 @@ func (this *{{.Name}}Handler) edit{{.Name}}(ctx *gin.Context) {
 func (this *{{.Name}}Handler) delete{{.Name}}s(ctx *gin.Context) {
 	result := gins.NewResponse()
 	defer result.JSON(ctx)
-
+	var params map[string]interface{}
+	err := ctx.BindJSON(&params)
+	if err != nil {
+		result.Code = 300
+		result.Msg = "无效的参数"
+		return
+	}
+	ids := params["ids"].(string)
+	idsarr := strings.Split(ids, ",")
+	var id64 []int64
+	for _, v := range idsarr {
+		id64 = append(id64, conv.Int64(v))
+	}
+    this.{{.Name}}Service.DeleteInIds(id64)
 	result.Code = 200
 	result.Msg = "成功"
 	return
