@@ -23,14 +23,11 @@ func New{{.Name}}Service() *{{.Name}}Service {
 func (this *{{.Name}}Service) Get(id int64) *model.{{.Name}} {
 	return this.{{.Name}}Repository.Get(gorm.MustDB(), id)
 }
-func (this *{{.Name}}Service) GetInIds(Ids []int64) []model.{{.Name}} {
-	return this.{{.Name}}Repository.GetInIds(gorm.MustDB(), Ids)
+func (this *{{.Name}}Service) Count(query map[string]interface{}) int {
+	return this.{{.Name}}Repository.Count(gorm.MustDB(),query)
 }
-func (this *{{.Name}}Service) Count(maps interface{}) int {
-	return this.{{.Name}}Repository.Count(gorm.MustDB(),maps)
-}
-func (this *{{.Name}}Service) Query(pageNo int, pageSize int,maps interface{}) (list []model.{{.Name}}, paging *gins.Paging) {
-	return this.{{.Name}}Repository.Query(gorm.MustDB(), pageNo ,pageSize ,maps)
+func (this *{{.Name}}Service) Query(pageNo int, pageSize int,query map[string]interface{}) (list []model.{{.Name}}, paging *gins.Paging) {
+	return this.{{.Name}}Repository.Query(gorm.MustDB(), pageNo ,pageSize ,query)
 }
 func (this *{{.Name}}Service) Take(where ...interface{}) *model.{{.Name}} {
 	return this.{{.Name}}Repository.Take(gorm.MustDB(), where...)
@@ -41,16 +38,11 @@ func (this *{{.Name}}Service) Create(t *model.{{.Name}}) error {
 func (this *{{.Name}}Service) Update(t *model.{{.Name}}) error {
 	return this.{{.Name}}Repository.Update(gorm.MustDB(), t)
 }
-func (this *{{.Name}}Service) Updates(id int64, columns map[string]interface{}) error {
-	return this.{{.Name}}Repository.Updates(gorm.MustDB(), id, columns)
+func (this *{{.Name}}Service) UpdateColumn(id int64, columns map[string]interface{}) error {
+	return this.{{.Name}}Repository.UpdateColumn(gorm.MustDB(), id, columns)
 }
-func (this *{{.Name}}Service) UpdateColumn(id int64, name string, value interface{}) error {
-	return this.{{.Name}}Repository.UpdateColumn(gorm.MustDB(), id, name, value)
+func (this *{{.Name}}Service) Delete(ids ...int64) {
+	this.{{.Name}}Repository.Delete(gorm.MustDB(), ids...)
 }
-func (this *{{.Name}}Service) Delete(id int64) {
-	this.{{.Name}}Repository.Delete(gorm.MustDB(), id)
-}
-func (this *{{.Name}}Service) DeleteInIds(Ids []int64) {
-	this.{{.Name}}Repository.DeleteInIds(gorm.MustDB(), Ids)
-}
+
 `

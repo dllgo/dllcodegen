@@ -23,33 +23,20 @@ func (this *{{.Name}}Repository) Get(db *gorm.DB, id int64) *model.{{.Name}} {
 	}
 	return ret
 }
-func (this *{{.Name}}Repository) GetInIds(db *gorm.DB,Ids []int64) []model.{{.Name}} {
-	if len(Ids) == 0 {
-		return nil
-	}
-	var {{.Name}}s []model.{{.Name}}
-	if err := db.Where("id in (?)", Ids).Find(&{{.Name}}s).Error; err != nil {
-		return nil
-	}
-	return {{.Name}}s
-}
-func (this *{{.Name}}Repository) Count(db *gorm.DB,maps interface{}) int {
+
+func (this *{{.Name}}Repository) Count(db *gorm.DB,query map[string]interface{}) int {
 	ret := &model.{{.Name}}{}
 	var count int
-	db = db.Model(ret)
-	if maps != nil {
-		db = db.Where(maps)
-	}
-	if err := db.Count(&count).Error; err != nil {
+	if err := db.Model(ret).Where(query).Count(&count).Error; err != nil {
 		return 0
 	}
 	return count
 }
-func (this *{{.Name}}Repository) Query(db *gorm.DB,pageNo int, pageSize int,maps interface{}) (list []model.{{.Name}}, paging *gins.Paging) {
+func (this *{{.Name}}Repository) Query(db *gorm.DB,pageNo int, pageSize int,query map[string]interface{}) (list []model.{{.Name}}, paging *gins.Paging) {
 	page := gins.NewPaging()
 	page.PageNo = pageNo
 	page.PageSize = pageSize
-	page.TotalCount = this.Count(db,maps)
+	page.TotalCount = this.Count(db,query)
 	
 	if page.TotalCount ==0 {
 		return nil, nil
@@ -57,11 +44,7 @@ func (this *{{.Name}}Repository) Query(db *gorm.DB,pageNo int, pageSize int,maps
 	page.TotalPage = page.TotalPages()
 
 	var {{.Name}}s []model.{{.Name}}
-
-	if maps != nil {
-		db = db.Where(maps)
-	}
-	err := db.Offset(page.Offset()).Limit(page.PageSize).Order("id desc").Find(&{{.Name}}s).Error
+	err := db.Where(query).Offset(page.Offset()).Limit(page.PageSize).Order("id desc").Find(&{{.Name}}s).Error
 	if err != nil {
 		return nil, nil
 	}
@@ -82,18 +65,11 @@ func (this *{{.Name}}Repository) Update(db *gorm.DB, t *model.{{.Name}}) (err er
 	err = db.Save(t).Error
 	return
 }
-func (this *{{.Name}}Repository) Updates(db *gorm.DB, id int64, columns map[string]interface{}) (err error) {
+func (this *{{.Name}}Repository) UpdateColumn(db *gorm.DB, id int64, columns map[string]interface{}) (err error) {
 	err = db.Model(&model.{{.Name}}{}).Where("id = ?", id).Updates(columns).Error
 	return
 }
-func (this *{{.Name}}Repository) UpdateColumn(db *gorm.DB, id int64, name string, value interface{}) (err error) {
-	err = db.Model(&model.{{.Name}}{}).Where("id = ?", id).UpdateColumn(name, value).Error
-	return
-}
-func (this *{{.Name}}Repository) Delete(db *gorm.DB, id int64) {
-	db.Where("id = ?", id).Delete(&model.{{.Name}}{})
-}
-func (this *{{.Name}}Repository) DeleteInIds(db *gorm.DB,Ids []int64) {
-	db.Where("id in (?)", Ids).Delete(&model.{{.Name}}{})
+func (this *{{.Name}}Repository) Delete(db *gorm.DB, ids ...int64) {
+	db.Where("id in (?)", ids).Delete(&model.{{.Name}}{})
 }
 `

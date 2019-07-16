@@ -13,7 +13,6 @@ import (
 	"github.com/dllgo/dllkit/gins"
 	"github.com/dllgo/dllkit/os/conv"
 	"github.com/dllgo/dllkit/validation"
-	"strings"
 )
 
 type {{.Name}}Handler struct {
@@ -27,11 +26,10 @@ func New{{.Name}}Handler() *{{.Name}}Handler {
 func (this *{{.Name}}Handler) Router(router *gin.Engine) {
 	r := router.Group("{{.Name}}")
 	r.GET("/lists", this.get{{.Name}}s)
-	r.GET("/one/:id", this.get{{.Name}})
+	r.GET("/query/:id", this.get{{.Name}})
 	r.POST("/add", this.add{{.Name}})
 	r.POST("/edit/:id", this.edit{{.Name}})
-	r.POST("/delete/:id", this.delete{{.Name}})
-	r.POST("/batchdel", this.delete{{.Name}}s)
+	r.POST("/delete", this.delete{{.Name}})
 }
 func (this *{{.Name}}Handler) get{{.Name}}s(ctx *gin.Context) {
 	result := gins.NewResponse()
@@ -39,7 +37,7 @@ func (this *{{.Name}}Handler) get{{.Name}}s(ctx *gin.Context) {
 
 	limit := ctx.DefaultQuery("limit", "10")
 	page := ctx.DefaultQuery("page", "1")
-    var m{{.Name}}Maps interface{}
+    var m{{.Name}}Maps map[string]interface{}
 	m{{.Name}}s,paging := this.{{.Name}}Service.Query(conv.Int(page), conv.Int(limit),m{{.Name}}Maps)
 	if m{{.Name}}s == nil {
 		result.Code = 200
@@ -138,7 +136,7 @@ func (this *{{.Name}}Handler) edit{{.Name}}(ctx *gin.Context) {
 	result.Msg = "更新成功"
 	return
 }
-func (this *{{.Name}}Handler) delete{{.Name}}s(ctx *gin.Context) {
+func (this *{{.Name}}Handler) delete{{.Name}}(ctx *gin.Context) {
 	result := gins.NewResponse()
 	defer result.JSON(ctx)
 	var params map[string]interface{}
@@ -148,30 +146,10 @@ func (this *{{.Name}}Handler) delete{{.Name}}s(ctx *gin.Context) {
 		result.Msg = "无效的参数"
 		return
 	}
-	ids := params["ids"].(string)
-	idsarr := strings.Split(ids, ",")
-	var id64 []int64
-	for _, v := range idsarr {
-		id64 = append(id64, conv.Int64(v))
-	}
-    this.{{.Name}}Service.DeleteInIds(id64)
+	ids :=conv.String2Int64(params["ids"])
+    this.{{.Name}}Service.Delete(ids...)
 	result.Code = 200
 	result.Msg = "成功"
-	return
-}
-func (this *{{.Name}}Handler) delete{{.Name}}(ctx *gin.Context) {
-	result := gins.NewResponse()
-	defer result.JSON(ctx)
-	mid := conv.Int64(ctx.Param("id"))
-	valid := validation.Validation{}
-	if v := valid.Min(mid, 1, "id"); !v.Ok {
-		result.Code = 300
-		result.Msg = "ID必须大于0"
-		return
-	}
-	this.{{.Name}}Service.Delete(mid)
-	result.Code = 200
-	result.Msg = "删除成功"
 	return
 }
 `
